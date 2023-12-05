@@ -9,11 +9,10 @@
   (map parse-long (re-seq #"\d+" my-str)))
 
 (defn create-sets [data]
-  (into {}
-        (map #(vector (parse-long (nth % 1))
-                      {:winning-set (into #{} (parse-nums (nth % 2)))
-                       :my-set (into #{} (parse-nums (nth % 3)))})
-             data))
+  (into {} (map #(vector (parse-long (nth % 1))
+                         {:winning-set (into #{} (parse-nums (nth % 2)))
+                          :my-set (into #{} (parse-nums (nth % 3)))})
+                data))
   )
 
 ;; part one
@@ -30,7 +29,7 @@
     (let [card (first to-be-processed)
           card-num (get card 0)
           sets (get card 1)
-          matches (count (s/intersection (get sets :winning-set) (get sets :my-set)))
+          matches (count (s/intersection (sets :winning-set) (sets :my-set)))
           new-cards (map #(vector % (get master-card-map %))
                          (range (+ card-num 1) (+ card-num 1 matches)))]
       (if (> matches 0)
@@ -45,8 +44,7 @@
   (->> (slurp "input.txt")
        (re-seq #"\bCard\b\s+(\d+)\:\s+((?>\d+\s+)+)\|\s+((?>\d+(?>\s+|$))+)")
        (create-sets)
-       (#(trampoline count-winners-v2 % (seq %) 0))
-       ))
+       (trampoline #(count-winners-v2 % (seq %) 0))))
 
 (defn -main
   "I don't do a whole lot."
