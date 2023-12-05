@@ -23,18 +23,28 @@
      0))
   )
 
-(defn count-winners-v2 [master-card-map to-be-processed counter]
+(defn count-winners-v2
+  [master-card-map to-be-processed counter cached-intersects]
   (if (empty? to-be-processed)
     counter
     (let [card (first to-be-processed)
           card-num (get card 0)
           sets (get card 1)
-          matches (count (s/intersection (get sets 0) (get sets 1)))
-          new-cards (map #(vector % (get master-card-map %))
+          cache-hit (get cached-intersects [(get sets 0) (get sets 1)])
+          matches (if cache-hit
+                    cache-hit
+                    (count (s/intersection (get sets 0) (get sets 1))))
+          new-cards (mapv #(vector % (get master-card-map %))
                          (range (+ card-num 1) (+ card-num 1 matches)))]
       (if (> matches 0)
-        #(count-winners-v2 master-card-map (into (rest to-be-processed) new-cards) (inc counter))
-        #(count-winners-v2 master-card-map (rest to-be-processed) (inc counter)))
+        #(count-winners-v2 master-card-map
+                           (into (rest to-be-processed) new-cards)
+                           (inc counter)
+                           (if cache-hit cached-intersects (assoc cached-intersects [(get sets 0) (get sets 1)] matches)))
+        #(count-winners-v2 master-card-map
+                           (rest to-be-processed)
+                           (inc counter)
+                           (if cache-hit cached-intersects (assoc cached-intersects [(get sets 0) (get sets 1)] matches))))
       )
     )
   )
@@ -44,7 +54,7 @@
   (->> (slurp "input.txt")
        (re-seq #"\bCard\b\s+(\d+)\:\s+((?>\d+\s+)+)\|\s+((?>\d+(?>\s+|$))+)")
        (create-sets)
-       (trampoline #(count-winners-v2 % (vec %) 0))))
+       (trampoline #(count-winners-v2 % (vec %) 0 {}))))
 
 (defn -main
   "I don't do a whole lot."
