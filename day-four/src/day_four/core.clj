@@ -31,8 +31,8 @@
           card-num (get card 0)
           sets (get card 1)
           matches (count (s/intersection (get sets :winning-set) (get sets :my-set)))
-          new-cards (map #(vector % (get master-card-map %)) (range (+ card-num 1) (+ card-num 1 matches)))
-]
+          new-cards (map #(vector % (get master-card-map %))
+                         (range (+ card-num 1) (+ card-num 1 matches)))]
       (if (> matches 0)
         #(count-winners-v2 master-card-map (into (rest to-be-processed) new-cards) (inc counter))
         #(count-winners-v2 master-card-map (rest to-be-processed) (inc counter)))
@@ -50,5 +50,5 @@
 
 (defn -main
   "I don't do a whole lot."
-  [& args]
+  []
   (println (count-winnings*)))
