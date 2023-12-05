@@ -44,7 +44,7 @@
   (->> (slurp "input.txt")
        (re-seq #"\bCard\b\s+(\d+)\:\s+((?>\d+\s+)+)\|\s+((?>\d+(?>\s+|$))+)")
        (create-sets)
-       (trampoline #(count-winners-v2 % (seq %) 0))))
+       (trampoline #(count-winners-v2 % (vec %) 0))))
 
 (defn -main
   "I don't do a whole lot."
