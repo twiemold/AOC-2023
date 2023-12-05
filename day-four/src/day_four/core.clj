@@ -10,8 +10,8 @@
 
 (defn create-sets [data]
   (into {} (map #(vector (parse-long (nth % 1))
-                         {:winning-set (into #{} (parse-nums (nth % 2)))
-                          :my-set (into #{} (parse-nums (nth % 3)))})
+                         [(into #{} (parse-nums (nth % 2)))
+                          (into #{} (parse-nums (nth % 3)))])
                 data))
   )
 
@@ -29,7 +29,7 @@
     (let [card (first to-be-processed)
           card-num (get card 0)
           sets (get card 1)
-          matches (count (s/intersection (sets :winning-set) (sets :my-set)))
+          matches (count (s/intersection (get sets 0) (get sets 1)))
           new-cards (map #(vector % (get master-card-map %))
                          (range (+ card-num 1) (+ card-num 1 matches)))]
       (if (> matches 0)
