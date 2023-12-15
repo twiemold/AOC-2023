@@ -23,7 +23,8 @@
        (zip-vectors)
        (map calc-distance)
        (map count)
-       (reduce *)
+       ;(reduce *) part 1
+       (first)
        ))
 
 (defn -main
