@@ -4,19 +4,7 @@
 (defrecord Hand [value cards bet])
 
 (def card->value
-  {\2 0
-   \3 1
-   \4 2
-   \5 3
-   \6 4
-   \7 5
-   \8 6
-   \9 7
-   \T 8
-   \J 9
-   \Q 10
-   \K 11
-   \A 12})
+  (zipmap '(\J \2 \3 \4 \5 \6 \7 \8 \9 \T \Q \K \A) (range)))
 
 (defn sort-hands [hand-one hand-two]
   (compare (into [] (concat (vector (:value hand-one))
@@ -24,10 +12,14 @@
            (into [] (concat (vector (:value hand-two))
                             (mapv card->value (:cards hand-two))))))
 
-(defn classify-hands [ [cards bet] ]
-  (let [sorted-freq (sort > (map second (frequencies cards) ) )
+(defn classify-hands [[cards bet]]
+  (let [freq (frequencies cards)
+        freq-sans-j (dissoc freq \J)
+        sorted-freq (sort > (vals freq-sans-j))
+        joker-val (get freq \J 0)
+        max-val (if (empty? freq-sans-j) 0 (first sorted-freq) )
         int-bet (parse-long bet)]
-   (case (first sorted-freq)
+   (case (+ joker-val max-val)
       1 (Hand. 1 cards int-bet) ;; high card  
       2 (if (= (second sorted-freq) 1)
           (Hand. 2 cards int-bet) ;; one pair
@@ -44,23 +36,11 @@
        (map classify-hands)
        (sort sort-hands)
        (map :bet)
-       (map * (drop 1 (range) ))
-       (reduce +)
-       ))
+       (map * (drop 1 (range)))
+       (reduce +)))
 
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
-  (print (calculate-winnings)))
+  (println (calculate-winnings)))
 
-(comment 
-  ()
-  (let [hand-one (Hand. 5 "KKKKK")
-        hand-two (Hand. 5 "AAAAA")
-        hand-three (Hand. 4 "AAAAK")
-        hand-four (Hand. 4 "AAAAJ")
-        hands [hand-one hand-two hand-three hand-four]]
-    ;; (compare (:value hand-one) (:value hand-two))
-    (sort sort-hands hands)
-    ;; (map card->value (:cards hand-one)))
-  )
